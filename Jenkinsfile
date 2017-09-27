@@ -2,7 +2,7 @@ def buildVersion = null
 properties([[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5']]])
 stage 'Build'
 
-node('docker-cloud') {
+node() {
     checkout scm
     docker.image('kmadel/maven:3.3.3-jdk-8').inside('-v /data:/data') {
         sh 'mvn -Dmaven.repo.local=/data/mvn/repo clean package'
@@ -13,7 +13,7 @@ node('docker-cloud') {
 if(!env.BRANCH_NAME.startsWith("PR")){
   checkpoint 'Build Complete'
   stage 'Quality Analysis'
-  node('docker-cloud') {
+  node() {
     try {
     unstash 'pom'
     //test in paralell
@@ -43,7 +43,7 @@ if(!env.BRANCH_NAME.startsWith("PR")){
 if(env.BRANCH_NAME=="master"){
   checkpoint 'Quality Analysis Complete'
   stage name: 'Version Release', concurrency: 1
-  node('docker-cloud') {
+  node() {
     unstash 'pom'
 
     def matcher = readFile('pom.xml') =~ '<version>(.+)</version>'
@@ -87,7 +87,7 @@ if(env.BRANCH_NAME=="master"){
      }
   }
 }
-node('docker-cloud') {
+node() {
   //update hipchat with success
   currentBuild.result = "success"
   hipchatSend color: 'GREEN', message: "${env.JOB_NAME} ${env.BUILD_NUMBER} status: ${currentBuild.result} <a href=\'${env.BUILD_URL}\'>Open</a>", room: '1613593', server: 'cloudbees.hipchat.com', token: 'A6YX8LxNc4wuNiWUn6qHacfO1bBSGXQ6E1lELi1z', v2enabled: true
