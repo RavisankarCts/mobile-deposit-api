@@ -10,7 +10,6 @@ node() {
     stash name: 'pom', includes: 'pom.xml, src, target'
 }
 
-  checkpoint 'Build Complete'
   stage 'Quality Analysis'
   node() {
     try {
