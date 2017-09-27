@@ -5,7 +5,7 @@ stage 'Build'
 node() {
     checkout scm
     docker.image('kmadel/maven:3.3.3-jdk-8').inside('-v /data:/data') {
-        sh 'sudo mvn -Dmaven.repo.local=/data/mvn/repo clean package'
+        sh 'mvn clean package'
     }
     stash name: 'pom', includes: 'pom.xml, src, target'
 }
@@ -20,13 +20,13 @@ if(!env.BRANCH_NAME.startsWith("PR")){
     parallel(
         integrationTests: {
             docker.image('kmadel/maven:3.3.3-jdk-8').inside('-v /data:/data') {
-                sh 'sudo mvn -Dmaven.repo.local=/data/mvn/repo verify'
+                sh 'mvn verify'
             }
         }, sonarAnalysis: {
             withCredentials([[$class: 'StringBinding', credentialsId: 'sonar.beedemo', variable: 'TOKEN']]) {
                 echo 'running sonar tests'
                 docker.image('kmadel/maven:3.3.3-jdk-8').inside('-v /data:/data') {
-                    sh 'sudo mvn -Dmaven.repo.local=/data/mvn/repo -Dsonar.scm.disabled=True -Dsonar.login=$TOKEN sonar:sonar'
+                    sh 'mvn -Dsonar.scm.disabled=True -Dsonar.login=$TOKEN sonar:sonar'
                 }
                 echo 'finished sonar tests'
             }
