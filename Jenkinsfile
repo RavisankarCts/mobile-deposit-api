@@ -14,6 +14,9 @@ node() {
   node() {
     try {
     unstash 'pom'
+    docker.image('kmadel/maven:3.3.3-jdk-8').inside('-v /data:/data') {
+                sh 'mvn verify'
+    }
     //test in paralell
     parallel(
         integrationTests: {
