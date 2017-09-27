@@ -10,7 +10,6 @@ node() {
     stash name: 'pom', includes: 'pom.xml, src, target'
 }
 
-if(!env.BRANCH_NAME.startsWith("PR")){
   checkpoint 'Build Complete'
   stage 'Quality Analysis'
   node() {
@@ -38,7 +37,7 @@ if(!env.BRANCH_NAME.startsWith("PR")){
       throw x
     }
   }
-}
+
 
 if(env.BRANCH_NAME=="master"){
   checkpoint 'Quality Analysis Complete'
